@@ -1,5 +1,6 @@
 import numpy as np
 import cv2 as cv
+import logging
 
 def select_img_from_video(input_file, board_pattern, select_all=False, wait_msec=10):
     # Open a video
@@ -30,10 +31,12 @@ def select_img_from_video(input_file, board_pattern, select_all=False, wait_msec
                 complete, pts = cv.findChessboardCorners(img, board_pattern)
                 cv.drawChessboardCorners(display, board_pattern, pts, complete)
                 cv.imshow('Camera Calibration', display)
+                logging.info(f'NSelect: {len(img_select)}')
                 # save the image with drawn corners
                 if complete:
                     img_select.append(display)
                     cv.imwrite(f'./result/{len(img_select)}.png', img)
+                    logging.info(f'Image {len(img_select)} is saved.')
                     
                 key = cv.waitKey()
                 if key == 27: # ESC
@@ -52,6 +55,7 @@ def calib_camera_from_chessboard(images, board_pattern, board_cellsize, K=None, 
         complete, pts = cv.findChessboardCorners(gray, board_pattern)
         if complete:
             img_points.append(pts)
+            logging.info(f'Image {len(img_points)} is used for calibration.')
     assert len(img_points) > 0, 'There is no set of complete chessboard points!'
 
     # Prepare 3D points of the chess board
@@ -64,8 +68,8 @@ def calib_camera_from_chessboard(images, board_pattern, board_cellsize, K=None, 
 
 if __name__ == '__main__':
     input_file = './data/checker.avi'
-    board_pattern = (13, 9)
-    board_cellsize = 0.025
+    board_pattern = (13, 9) # (columns, rows) gotta put the proper number of corners, **if not, it will not work**
+    board_cellsize = 0.025  # 25mm(1 inch), **if not, it will not work**
 
     img_select = select_img_from_video(input_file, board_pattern)
     assert len(img_select) > 0, 'There is no selected images!'

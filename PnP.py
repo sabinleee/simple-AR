@@ -33,15 +33,13 @@ while True:
     complete, img_points = cv.findChessboardCorners(img, board_pattern, board_criteria)
     if complete:
         ret, rvec, tvec = cv.solvePnP(obj_points, img_points, K, dist_coeff)
-
-        # Draw the box on the image
+        
+        # Draw the alphabet B on the box
         line_lower, _ = cv.projectPoints(box_lower, rvec, tvec, K, dist_coeff)
         line_upper, _ = cv.projectPoints(box_upper, rvec, tvec, K, dist_coeff)
-        cv.polylines(img, [np.int32(line_lower)], True, (255, 0, 0), 2)
-        cv.polylines(img, [np.int32(line_upper)], True, (0, 0, 255), 2)
-        for b, t in zip(line_lower, line_upper):
-            cv.line(img, np.int32(b.flatten()), np.int32(t.flatten()), (0, 255, 0), 2)
-
+        cv.putText(img, '2', (int(line_lower[0][0][0]), int(line_lower[0][0][1])), cv.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 2)
+        cv.putText(img, '2', (int(line_upper[0][0][0]), int(line_upper[0][0][1])), cv.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 2)
+        
         # Print the camera position
         R, _ = cv.Rodrigues(rvec) # Alternative) scipy.spatial.transform.Rotation
         p = (-R.T @ tvec).flatten()
